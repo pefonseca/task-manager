@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import task.manager.api.rest.dto.response.TaskResponseDTO;
 
 import java.time.LocalDateTime;
 
@@ -29,6 +30,19 @@ public class Task {
     private String description;
     private String status;
     private LocalDateTime dueDate;
+    private LocalDateTime updateDate;
     private Long userId;
+
+    public TaskResponseDTO toDTO() {
+        return TaskResponseDTO.builder()
+                              .id(this.id)
+                              .title(this.title)
+                              .description(this.description)
+                              .status(this.status)
+                              .dueDate(this.dueDate)
+                              .updateDate(this.updateDate)
+                              .userId(this.userId)
+                              .build();
+    }
 
 }

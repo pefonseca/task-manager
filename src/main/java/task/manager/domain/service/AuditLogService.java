@@ -1,4 +1,0 @@
-package task.manager.domain.service;
-
-public interface AuditLogService {
-}
