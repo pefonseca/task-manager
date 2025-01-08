@@ -1,20 +1,18 @@
 package task.manager.domain.service.impl;
 
-import com.fasterxml.jackson.databind.util.BeanUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import task.manager.api.rest.dto.request.TaskRequestDTO;
 import task.manager.api.rest.dto.request.TaskRequestUpdateDTO;
 import task.manager.api.rest.dto.response.TaskResponseDTO;
 import task.manager.api.rest.dto.response.TaskResponseDeleteDTO;
 import task.manager.domain.entity.Task;
+import task.manager.domain.exception.TaskNotFoundException;
 import task.manager.domain.service.TaskService;
 import task.manager.infra.repository.TaskRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +35,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskResponseDTO findById(Long id) {
-        return taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Não foi encontrado nenhuma tarefa com esse ID.")).toDTO();
+        return taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Não foi encontrado nenhuma tarefa com esse ID.")).toDTO();
     }
 
     @Override
@@ -46,6 +44,7 @@ public class TaskServiceImpl implements TaskService {
                           .title(requestDTO.getTitle())
                           .description(requestDTO.getDescription())
                           .status(requestDTO.getStatus())
+                          .dueDate(LocalDateTime.now())
                           .build();
 
         return taskRepository.save(taskDB).toDTO();
@@ -53,21 +52,19 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskResponseDTO update(Long id, TaskRequestUpdateDTO requestUpdateDTO) {
-        var taskDB = taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Não foi encontrado nenhuma tarefa com esse ID."));
+        TaskResponseDTO taskDB = findById(id);
 
-        taskDB.setTitle(requestUpdateDTO.getTitle());
-        taskDB.setStatus(requestUpdateDTO.getStatus());
-        taskDB.setDescription(requestUpdateDTO.getDescription());
-        taskDB.setUpdateDate(LocalDateTime.now());
+        var taskSaved = taskDB.toUpdate(requestUpdateDTO);
 
-        var taskUpdated = taskRepository.save(taskDB);
+        var taskUpdated = taskRepository.save(taskSaved);
 
         return taskUpdated.toDTO();
     }
 
     @Override
     public TaskResponseDeleteDTO delete(Long id) {
-        taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Não foi encontrado nenhuma tarefa com esse ID."));
+        taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Não foi encontrado nenhuma tarefa com esse ID."));
+        taskRepository.deleteById(id);
         return TaskResponseDeleteDTO.builder().message("Tarefa excluída com sucesso.").build();
     }
 }

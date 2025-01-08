@@ -17,7 +17,8 @@ public class SecurityConfig {
                         "/v3/api-docs/**",         // Endpoints do OpenAPI
                         "/swagger-ui/**",          // Recursos do Swagger UI
                         "/swagger-ui.html",
-                        "/api/v1/tasks" // Página principal do Swagger
+                        "/api/v1/tasks",
+                        "/api/v1/tasks/{id}"// Página principal do Swagger
                 ).permitAll() // Permitir acesso público aos endpoints listados
                 // .anyRequest().authenticated() // Requer autenticação para outros endpoints
             )
